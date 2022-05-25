@@ -22,6 +22,7 @@ bool changePassword = false;
 const int NOT_SELECTED_PROFILE = -1;
 int profileId = NOT_SELECTED_PROFILE;
 const String CHANGE_PASSWORD_MODE = "change password mode";
+const String UNLOCK_DOOR_MODE = "unlock door mode";
 String modeSelected = "";
 char passwords[4][6] = 
 { 
@@ -59,8 +60,13 @@ bool isProfileSelected() {
 	return profileId != NOT_SELECTED_PROFILE;
 }
 
+bool isModeSelected() {
+	return modeSelected != "";
+}
+
 void selectProfile(int id) {
-	if (isProfileSelected) {
+	if (isProfileSelected) 
+	{
 		profileId = id;
 		lcd.clear();
 		lcd.setCursor(0, 0);
@@ -92,85 +98,103 @@ void loop()
 			selectProfile(3);
 			break;
 		case '*':
-			changePassword = true;
-			lcd.clear();
-			lcd.setCursor(0, 0);
-			lcd.print("OLD PASSWORD:");
-			break;
-		case '#':
-			for (i = 0; i < 6; i++)
+			if (isProfileSelected) 
 			{
-				if (inputCode[i] == passwords[profileId][i])
-				{
-					correct++;
-				}
-			}
-			if (correct == 6)
-			{
+				modeSelected = CHANGE_PASSWORD_MODE;
+				changePassword = true;
 				lcd.clear();
 				lcd.setCursor(0, 0);
-				lcd.print("Input correct!");
-				if (changePassword)
+				lcd.print("OLD PASSWORD:");
+			}
+			break;
+		case '#':
+			if (isProfileSelected) 
+			{
+				if (!isModeSelected) 
 				{
-					delay(1000);
+					modeSelected = UNLOCK_DOOR_MODE;
 					lcd.clear();
 					lcd.setCursor(0, 0);
-					lcd.print("NEW PASSWORD:");
-					i = 0;
-					while (i < 6)
+					lcd.print("ENTER PASSWORD:");
+					break;
+				}
+				for (i = 0; i < 6; i++)
+				{
+					if (inputCode[i] == passwords[profileId][i])
 					{
-						char secretKey = customKeypad.getKey();
-						if (secretKey)
-						{
-							passwords[profileId][i] = secretKey;
-							lcd.setCursor(i, 1);
-							lcd.print(passwords[profileId][i]);
-							i++;
-						}
+						correct++;
 					}
-					changePassword = false;
-					displayMessage("Successful!");
-					delay(2000);
+				}
+				if (correct == 6)
+				{
+					lcd.clear();
+					lcd.setCursor(0, 0);
+					lcd.print("Input correct!");
+					if (changePassword)
+					{
+						delay(1000);
+						lcd.clear();
+						lcd.setCursor(0, 0);
+						lcd.print("NEW PASSWORD:");
+						i = 0;
+						while (i < 6)
+						{
+							char secretKey = customKeypad.getKey();
+							if (secretKey)
+							{
+								passwords[profileId][i] = secretKey;
+								lcd.setCursor(i, 1);
+								lcd.print(passwords[profileId][i]);
+								i++;
+							}
+						}
+						changePassword = false;
+						displayMessage("Successful!");
+						delay(2000);
+					}
+					else
+					{
+						lcd.setCursor(0, 0);
+						lcd.print(" Please Come In ");
+						digitalWrite(relayPin, HIGH);
+						delay(2000);
+						lcd.clear();
+						lcd.setCursor(0, 0);
+						lcd.print("TIME OUT!");
+						digitalWrite(relayPin, LOW);
+						delay(2000);
+						lcd.setCursor(0, 0);
+						lcd.print("ENTER PASSWORD:)");
+						inputCode[0]++;
+					}
 				}
 				else
 				{
-					lcd.setCursor(0, 0);
-					lcd.print(" Please Come In ");
-					digitalWrite(relayPin, HIGH);
-					delay(2000);
 					lcd.clear();
 					lcd.setCursor(0, 0);
-					lcd.print("TIME OUT!");
+					lcd.print("Locked:( ");
+					lcd.setCursor(0, 1);
+					lcd.print(" Try Again ");
 					digitalWrite(relayPin, LOW);
 					delay(2000);
-					lcd.setCursor(0, 0);
-					lcd.print("ENTER PASSWORD:)");
-					inputCode[0]++;
 				}
-			}
-			else
-			{
+				pos = 0;
+				profileId = -1;
 				lcd.clear();
 				lcd.setCursor(0, 0);
-				lcd.print("Locked:( ");
+				lcd.print("PLEASE SELECT");
 				lcd.setCursor(0, 1);
-				lcd.print(" Try Again ");
-				digitalWrite(relayPin, LOW);
-				delay(2000);
+				lcd.print("PROFILE: ");
 			}
-			pos = 0;
-			profileId = -1;
-			lcd.clear();
-			lcd.setCursor(0, 0);
-			lcd.print("PLEASE SELECT");
-			lcd.setCursor(0, 1);
-			lcd.print("PROFILE: ");
 			break;
 		default:
-			inputCode[pos] = customKey;
-			lcd.setCursor(pos, 1);
-			lcd.print('*');
-			pos++;
+			if (isModeSelected) 
+			{
+				inputCode[pos] = customKey;
+				lcd.setCursor(pos, 1);
+				lcd.print('*');
+				pos++;
+			}
 		}
 	}
 }

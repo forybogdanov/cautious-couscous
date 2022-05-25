@@ -9,17 +9,20 @@ const byte ROWS = 4;
 const byte COLS = 4;
 char hexaKeys[ROWS][COLS] =
 {
-{ '1','2','3','A' },
-{ '4','5','6','B' },
-{ '7','8','9','C' },
-{ '*','0','#','D' }
+	{ '1','2','3','A' },
+	{ '4','5','6','B' },
+	{ '7','8','9','C' },
+	{ '*','0','#','D' }
 };
 byte rowPins[ROWS] = { 9, 8, 7, 6 };
 byte colPins[COLS] = { 5, 4, 3, 2 };
 
 int pos = 0; 
 bool changePassword = false;
-int profileId = -1;
+const int NOT_SELECTED_PROFILE = -1;
+int profileId = NOT_SELECTED_PROFILE;
+const String CHANGE_PASSWORD_MODE = "change password mode";
+String modeSelected = "";
 char passwords[4][6] = 
 { 
 	{'1', '2', '3', '4', '5', '6'}, 
@@ -52,12 +55,22 @@ void displayMessage(String message) {
 	lcd.print(message);
 }
 
-void loop()
-{
-	readKey();
+bool isProfileSelected() {
+	return profileId != NOT_SELECTED_PROFILE;
 }
 
-void readKey()
+void selectProfile(int id) {
+	if (isProfileSelected) {
+		profileId = id;
+		lcd.clear();
+		lcd.setCursor(0, 0);
+		lcd.print("* - CHANGE PASS");
+		lcd.setCursor(0, 1);
+		lcd.print("# - UNLOCK DOOR");
+	}
+}
+
+void loop()
 {
 	int correct = 0;
 	int i;
@@ -67,20 +80,16 @@ void readKey()
 		switch (customKey)
 		{
 		case 'A':
-			profileId = 0;
-			displayMessage("ENTER PASSWORD:)");
+			selectProfile(0);
 			break;
 		case 'B':
-			profileId = 1;
-			displayMessage("ENTER PASSWORD:)");
+			selectProfile(1);
 			break;
 		case 'C':
-			profileId = 2;
-			displayMessage("ENTER PASSWORD:)");
+			selectProfile(2);
 			break;
 		case 'D':
-			profileId = 3;
-			displayMessage("ENTER PASSWORD:)");
+			selectProfile(3);
 			break;
 		case '*':
 			changePassword = true;

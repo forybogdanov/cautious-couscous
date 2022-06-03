@@ -1,34 +1,3 @@
-Skip to content
-Search or jump to…
-Pull requests
-Issues
-Marketplace
-Explore
-
-@forybogdanov
-forybogdanov
-/
-cautious - couscous
-Public
-Code
-Issues
-1
-Pull requests
-1
-Actions
-Projects
-Wiki
-Security
-Insights
-Settings
-cautious - couscous / code_with_servomotor.txt
-@GerganaSavcheva
-GerganaSavcheva Code with servo motor
-Latest commit 78c65cf 3 hours ago
-History
-1 contributor
-172 lines(164 sloc)  3.21 KB
-
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 #include <Keypad.h>

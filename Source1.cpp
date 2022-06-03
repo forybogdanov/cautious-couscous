@@ -2,6 +2,7 @@
 #include <LiquidCrystal_I2C.h>
 #include <Keypad.h>
 #include <string.h>
+#include <Servo.h>
 
 const byte relayPin = 13;
 
@@ -17,28 +18,30 @@ char hexaKeys[ROWS][COLS] =
 byte rowPins[ROWS] = { 9, 8, 7, 6 };
 byte colPins[COLS] = { 5, 4, 3, 2 };
 
-int pos = 0; 
+int pos = 0;
 bool changePassword = false;
 const int NOT_SELECTED_PROFILE = -1;
 int profileId = NOT_SELECTED_PROFILE;
 const String CHANGE_PASSWORD_MODE = "change password mode";
 const String UNLOCK_DOOR_MODE = "unlock door mode";
 String modeSelected = "";
-char passwords[4][6] = 
-{ 
-	{'1', '2', '3', '4', '5', '6'}, 
-	{'1', '2', '3', '4', '5', '6'}, 
-	{'1', '2', '3', '4', '5', '6'}, 
+char passwords[4][6] =
+{
+	{'1', '2', '3', '4', '5', '6'},
+	{'1', '2', '3', '4', '5', '6'},
+	{'1', '2', '3', '4', '5', '6'},
 	{'1', '2', '3', '4', '5', '6'}
 };
 char inputCode[6] = { '-', '-', '-', '-', '-', '-' };
 
 Keypad customKeypad = Keypad(makeKeymap(hexaKeys), rowPins, colPins, ROWS, COLS);
 LiquidCrystal_I2C lcd(0x20, 16, 2);
-
+Servo motor;
 
 void setup()
 {
+	motor.attach(10);
+	motor.write(0);
 	Serial.begin(9600);
 	lcd.init();
 	lcd.backlight();
@@ -65,7 +68,7 @@ bool isModeSelected() {
 }
 
 void selectProfile(int id) {
-	if (isProfileSelected) 
+	if (isProfileSelected)
 	{
 		profileId = id;
 		lcd.clear();
@@ -88,6 +91,7 @@ void resetLock() {
 	for (int i = 0; i < 6; i++) {
 		inputCode[i] = '-';
 	}
+	changePassword = false;
 }
 
 void loop()
@@ -112,7 +116,7 @@ void loop()
 			selectProfile(3);
 			break;
 		case '*':
-			if (isProfileSelected()) 
+			if (isProfileSelected())
 			{
 				modeSelected = CHANGE_PASSWORD_MODE;
 				changePassword = true;
@@ -122,9 +126,9 @@ void loop()
 			}
 			break;
 		case '#':
-			if (isProfileSelected()) 
+			if (isProfileSelected())
 			{
-				if (!isModeSelected()) 
+				if (!isModeSelected())
 				{
 					modeSelected = UNLOCK_DOOR_MODE;
 					lcd.clear();
@@ -172,10 +176,13 @@ void loop()
 						lcd.setCursor(0, 0);
 						lcd.print(" Please Come In ");
 						digitalWrite(relayPin, HIGH);
+						motor.write(90);
 						delay(2000);
 						lcd.clear();
 						lcd.setCursor(0, 0);
 						lcd.print("TIME OUT!");
+						motor.write(0);
+						delay(600);
 						digitalWrite(relayPin, LOW);
 						delay(2000);
 					}
@@ -194,7 +201,7 @@ void loop()
 			}
 			break;
 		default:
-			if (isModeSelected()) 
+			if (isModeSelected())
 			{
 				inputCode[pos] = customKey;
 				lcd.setCursor(pos, 1);

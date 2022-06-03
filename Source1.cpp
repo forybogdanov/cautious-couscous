@@ -76,6 +76,20 @@ void selectProfile(int id) {
 	}
 }
 
+void resetLock() {
+	pos = 0;
+	profileId = NOT_SELECTED_PROFILE;
+	modeSelected = "";
+	lcd.clear();
+	lcd.setCursor(0, 0);
+	lcd.print("PLEASE SELECT");
+	lcd.setCursor(0, 1);
+	lcd.print("PROFILE: ");
+	for (int i = 0; i < 6; i++) {
+		inputCode[i] = '-';
+	}
+}
+
 void loop()
 {
 	int correct = 0;
@@ -98,7 +112,7 @@ void loop()
 			selectProfile(3);
 			break;
 		case '*':
-			if (isProfileSelected) 
+			if (isProfileSelected()) 
 			{
 				modeSelected = CHANGE_PASSWORD_MODE;
 				changePassword = true;
@@ -108,9 +122,9 @@ void loop()
 			}
 			break;
 		case '#':
-			if (isProfileSelected) 
+			if (isProfileSelected()) 
 			{
-				if (!isModeSelected) 
+				if (!isModeSelected()) 
 				{
 					modeSelected = UNLOCK_DOOR_MODE;
 					lcd.clear();
@@ -130,6 +144,7 @@ void loop()
 					lcd.clear();
 					lcd.setCursor(0, 0);
 					lcd.print("Input correct!");
+					delay(1000);
 					if (changePassword)
 					{
 						delay(1000);
@@ -163,32 +178,23 @@ void loop()
 						lcd.print("TIME OUT!");
 						digitalWrite(relayPin, LOW);
 						delay(2000);
-						lcd.setCursor(0, 0);
-						lcd.print("ENTER PASSWORD:)");
-						inputCode[0]++;
 					}
 				}
 				else
 				{
 					lcd.clear();
 					lcd.setCursor(0, 0);
-					lcd.print("Locked:( ");
+					lcd.print("Wrong password");
 					lcd.setCursor(0, 1);
 					lcd.print(" Try Again ");
 					digitalWrite(relayPin, LOW);
 					delay(2000);
 				}
-				pos = 0;
-				profileId = -1;
-				lcd.clear();
-				lcd.setCursor(0, 0);
-				lcd.print("PLEASE SELECT");
-				lcd.setCursor(0, 1);
-				lcd.print("PROFILE: ");
+				resetLock();
 			}
 			break;
 		default:
-			if (isModeSelected) 
+			if (isModeSelected()) 
 			{
 				inputCode[pos] = customKey;
 				lcd.setCursor(pos, 1);

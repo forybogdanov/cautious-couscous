@@ -1,33 +1,3 @@
-Skip to content
-Search or jump to…
-Pull requests
-Issues
-Marketplace
-Explore
-
-@forybogdanov
-forybogdanov
-/
-cautious - couscous
-Public
-Code
-Issues
-1
-Pull requests
-Actions
-Projects
-Wiki
-Security
-Insights
-Settings
-cautious - couscous / Source1.cpp
-@forybogdanov
-forybogdanov fix bug
-Latest commit 0220b71 18 minutes ago
-History
-1 contributor
-206 lines(194 sloc)  3.87 KB
-
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 #include <Keypad.h>
@@ -234,7 +204,7 @@ void loop()
 		}
 	}
 }
-© 2022 GitHub, Inc.
+Â© 2022 GitHub, Inc.
 Terms
 Privacy
 Security
